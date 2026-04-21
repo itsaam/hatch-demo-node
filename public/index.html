@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Hatch Demo — Node + Postgres</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui; max-width: 640px; margin: 4rem auto; padding: 0 1rem; background: #111; color: #eee; }
+  h1 { color: #ff7a3d; margin: 0 0 .25rem; font-size: 2rem; }
+  p { color: #888; margin-top: 0; }
+  form { display: grid; gap: .5rem; margin: 1rem 0; padding: 1rem; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; }
+  input, button { padding: .6rem .8rem; border-radius: 6px; border: 1px solid #444; background: #0f0f0f; color: #eee; font-size: 14px; font-family: inherit; }
+  button { background: #ff7a3d; color: #111; border: 0; font-weight: 600; cursor: pointer; }
+  button:hover { filter: brightness(1.08); }
+  pre { background: #0f0f0f; padding: 1rem; border-radius: 6px; border: 1px solid #333; font-size: 12px; overflow: auto; }
+  h2 { margin-top: 2rem; font-size: 1.1rem; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+  <h1>🥚 Hatch Demo</h1>
+  <p>Node + Postgres · inscription / connexion</p>
+
+  <div class="row">
+    <form id="register">
+      <strong>Inscription</strong>
+      <input type="email" name="email" placeholder="email" required>
+      <input type="password" name="password" placeholder="mot de passe" required>
+      <button>Créer un compte</button>
+    </form>
+
+    <form id="login">
+      <strong>Connexion</strong>
+      <input type="email" name="email" placeholder="email" required>
+      <input type="password" name="password" placeholder="mot de passe" required>
+      <button>Se connecter</button>
+    </form>
+  </div>
+
+  <h2>Résultat</h2>
+  <pre id="out">—</pre>
+
+  <h2>Utilisateurs existants</h2>
+  <pre id="users">…</pre>
+
+<script>
+const out = document.getElementById('out')
+const users = document.getElementById('users')
+
+async function post(url, data) {
+  const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) })
+  return { status: r.status, body: await r.json() }
+}
+
+async function refreshUsers() {
+  const r = await fetch('/api/users').then(r => r.json())
+  users.textContent = JSON.stringify(r, null, 2)
+}
+
+for (const id of ['register', 'login']) {
+  document.getElementById(id).addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const fd = new FormData(e.target)
+    const data = Object.fromEntries(fd)
+    const res = await post('/api/' + id, data)
+    out.textContent = JSON.stringify(res, null, 2)
+    refreshUsers()
+  })
+}
+
+refreshUsers()
+</script>
+</body>
+</html>
