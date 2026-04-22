@@ -1,3 +1,4 @@
+--trigger--
 -- seed executed after db is healthy (before app boot), so create schema too
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
